@@ -1,0 +1,7 @@
+Z:\github\DNS\DNS\bin\Debug\DNS.exe.config
+Z:\github\DNS\DNS\bin\Debug\DNS.exe
+Z:\github\DNS\DNS\bin\Debug\DNS.pdb
+Z:\github\DNS\DNS\obj\Debug\DNS.csproj.AssemblyReference.cache
+Z:\github\DNS\DNS\obj\Debug\DNS.csproj.CoreCompileInputs.cache
+Z:\github\DNS\DNS\obj\Debug\DNS.exe
+Z:\github\DNS\DNS\obj\Debug\DNS.pdb

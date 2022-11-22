@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33027.164
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNS", "DNS\DNS.csproj", "{F56E9979-5B4D-4901-B7F6-C3D30D578EA5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F56E9979-5B4D-4901-B7F6-C3D30D578EA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F56E9979-5B4D-4901-B7F6-C3D30D578EA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F56E9979-5B4D-4901-B7F6-C3D30D578EA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F56E9979-5B4D-4901-B7F6-C3D30D578EA5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7BFC2CEE-AB33-49F9-9B83-7994F48C9F0B}
+	EndGlobalSection
+EndGlobal
