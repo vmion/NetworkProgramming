@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketProgramming_1", "Sock
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketProgramming_1_Client", "SocketProgramming_1_Client\SocketProgramming_1_Client.csproj", "{5C072338-588A-4400-8C90-A483D14F0D13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionPractice", "ExceptionPractice\ExceptionPractice.csproj", "{02A22D94-3797-4174-B94C-255791DF6D29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreadProject", "ThreadProject\ThreadProject.csproj", "{5943957A-067E-486A-AB70-B01C2607C6A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{5C072338-588A-4400-8C90-A483D14F0D13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C072338-588A-4400-8C90-A483D14F0D13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C072338-588A-4400-8C90-A483D14F0D13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02A22D94-3797-4174-B94C-255791DF6D29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02A22D94-3797-4174-B94C-255791DF6D29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02A22D94-3797-4174-B94C-255791DF6D29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02A22D94-3797-4174-B94C-255791DF6D29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5943957A-067E-486A-AB70-B01C2607C6A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5943957A-067E-486A-AB70-B01C2607C6A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5943957A-067E-486A-AB70-B01C2607C6A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5943957A-067E-486A-AB70-B01C2607C6A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

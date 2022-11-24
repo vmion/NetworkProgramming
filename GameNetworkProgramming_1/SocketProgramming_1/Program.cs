@@ -24,17 +24,38 @@ namespace SocketProgramming_1
             Socket client = listenSock.Accept();
             Console.WriteLine("Accept");
             string data = "Game에 오신 것을 환영합니다.";
-            byte[] sendBuffer = Encoding.Default.GetBytes(data);
-            client.Send(sendBuffer);
+            byte[] tmp = Encoding.Default.GetBytes(data);
+            client.Send(tmp);
             Console.WriteLine(client.RemoteEndPoint + "님께서 접속했습니다.");
             
             byte[] receiveBuffer = new byte[128];
+            byte[] sendBuffer = new byte[128];            
             while (true)
-            {                
-                client.Receive(receiveBuffer);
-                string receive = Encoding.Default.GetString(receiveBuffer);
-                Console.WriteLine("채팅 : " + receive);
-                Array.Clear(receiveBuffer, 0, receiveBuffer.Length);
+            {
+                try
+                {
+                    if(client.Connected)
+                    {
+                        client.Receive(receiveBuffer);
+                        Array.Copy(receiveBuffer, sendBuffer, receiveBuffer.Length);
+                        client.Send(sendBuffer);
+                        string receive = Encoding.Default.GetString(receiveBuffer);
+                        Console.WriteLine("채팅 : " + receive);
+                        Array.Clear(receiveBuffer, 0, receiveBuffer.Length);
+                        Array.Clear(sendBuffer, 0, sendBuffer.Length);
+                    }                    
+                }
+                catch(SocketException e)
+                {
+                    //소켓에 대한 예외
+                    Console.WriteLine(e.Message);
+                    client.Close();
+                }
+                catch(ObjectDisposedException e)
+                {
+                    //삭제된 개체를 사용할시 발생되는 예외
+                    Console.WriteLine(e.Message);
+                }
             }            
         }
     }
