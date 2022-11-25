@@ -21,7 +21,7 @@ namespace SocketProgramming_1_Client
             byte[] receiveBuffer = new byte[128];
             byte[] sendBuffer = new byte[128];
             byte[] tmp = new byte[128];
-            sock.Receive(receiveBuffer);
+            sock.Receive(tmp);
             string receiveData = Encoding.Default.GetString(tmp);
             Console.WriteLine(receiveData);            
             string line = string.Empty;

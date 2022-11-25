@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionPractice", "Except
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThreadProject", "ThreadProject\ThreadProject.csproj", "{5943957A-067E-486A-AB70-B01C2607C6A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server_2", "Server_2\Server_2.csproj", "{62FED21E-B04B-482C-9C3A-A30C5C2BCE7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{5943957A-067E-486A-AB70-B01C2607C6A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5943957A-067E-486A-AB70-B01C2607C6A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5943957A-067E-486A-AB70-B01C2607C6A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62FED21E-B04B-482C-9C3A-A30C5C2BCE7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62FED21E-B04B-482C-9C3A-A30C5C2BCE7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62FED21E-B04B-482C-9C3A-A30C5C2BCE7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62FED21E-B04B-482C-9C3A-A30C5C2BCE7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
