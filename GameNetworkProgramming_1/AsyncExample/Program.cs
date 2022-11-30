@@ -19,7 +19,12 @@ namespace AsyncExample
             sock = _sock;
             sBuffer = new byte[128];
             rBuffer = new byte[128];
-        } 
+        }
+        public void Close()
+        {
+            //sock.Shutdown(SocketShutdown.Both);
+            sock.Close();
+        }
     }
     class Program
     {
@@ -54,32 +59,60 @@ namespace AsyncExample
         static void AcceptCallBack(IAsyncResult ar)
         {
             Socket userSock = listenSock.EndAccept(ar);
-            User user = new User(userSock);
-            userList.Add(user);
-            byte[] tmp = Encoding.Default.GetBytes("Game에 오신 것을 환영합니다.");
-            userSock.Send(tmp);
-            userSock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
-                SocketFlags.None, ReceiveCallBack, user);
+            User user = null;
+            try 
+            {
+                byte[] tmp = Encoding.Default.GetBytes("Game에 오신 것을 환영합니다.");
+                userSock.Send(tmp);
+                user = new User(userSock);
+                userList.Add(user);
+                Console.WriteLine(user.sock.RemoteEndPoint + "유저가 접속하였습니다.");
+                userSock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
+                    SocketFlags.None, ReceiveCallBack, user);
+            }
+            catch(Exception e)
+            {
+                if(user != null)
+                    userList.Remove(user);
+                userSock.Close();
+            }
         }
         static void ReceiveCallBack(IAsyncResult ar)
         {
             //userSock이 보낸 데이터를 다른 사용자에게 전송
-            User user = (User)ar.AsyncState; 
-            //자신의 메시지를 다른사용자에게 보내기 위하여 rBuffer의 데이터를 sBuffer에 전송            
-            for(int i = 0; i < userList.Count; i++)
+            User user = (User)ar.AsyncState;
+            try
             {
-                Array.Copy(user.rBuffer, userList[i].sBuffer, user.rBuffer.Length);
-                userList[i].sock.BeginSend(userList[i].sBuffer, 0, userList[i].sBuffer.Length,
-                                        SocketFlags.None, SendCallBack, userList[i]);
+                //자신의 메시지를 다른사용자에게 보내기 위하여 rBuffer의 데이터를 sBuffer에 전송            
+                for (int i = 0; i < userList.Count; i++)
+                {
+                    Array.Copy(user.rBuffer, userList[i].sBuffer, user.rBuffer.Length);
+                    userList[i].sock.BeginSend(userList[i].sBuffer, 0, userList[i].sBuffer.Length,
+                                            SocketFlags.None, SendCallBack, userList[i]);
+                }
+                Array.Clear(user.rBuffer, 0, user.rBuffer.Length);
             }
-            Array.Clear(user.rBuffer, 0, user.rBuffer.Length);            
+            catch(Exception e)
+            {                
+                Console.WriteLine(user.sock.Handle + "유저가 접속종료하였습니다.");
+                userList.Remove(user);
+                user.sock.Close();                
+            }
         }
         static void SendCallBack(IAsyncResult ar)
         {
             User user = (User)ar.AsyncState;
-            Array.Clear(user.sBuffer, 0, user.sBuffer.Length);
-            user.sock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
-                                    SocketFlags.None, ReceiveCallBack, user);                       
+            try
+            {                
+                Array.Clear(user.sBuffer, 0, user.sBuffer.Length);
+                user.sock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
+                                        SocketFlags.None, ReceiveCallBack, user);
+            }
+            catch(Exception e)
+            {
+                userList.Remove(user);
+                user.sock.Close();
+            }
         }
     }
 }

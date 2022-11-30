@@ -19,6 +19,11 @@ namespace AsyncExample_Client
             sBuffer = new byte[128];
             rBuffer = new byte[128];
         }
+        public void Close()
+        {
+            sock.Shutdown(SocketShutdown.Both);
+            sock.Close();
+        }
     }
     class Program
     {
@@ -31,9 +36,7 @@ namespace AsyncExample_Client
             sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             user = new User(sock);
             IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strip), port);
-            sock.Connect(ip);
-            //byte[] receiveBuffer = new byte[128];
-            //byte[] sendBuffer = new byte[128];
+            sock.Connect(ip);            
             byte[] tmp = new byte[128];
             sock.Receive(tmp);
             string receiveData = Encoding.Default.GetString(tmp);
@@ -49,6 +52,7 @@ namespace AsyncExample_Client
                 user.sock.BeginSend(user.sBuffer, 0, user.sBuffer.Length,
                                     SocketFlags.None, SendCallBack, sock);
             }
+            user.sock.Close();
         }
         static void ReceiveCallBack(IAsyncResult ar)
         {
@@ -56,7 +60,7 @@ namespace AsyncExample_Client
             string receiveMessage = Encoding.Default.GetString(user.rBuffer);
             Console.WriteLine(receiveMessage);
             Array.Clear(user.rBuffer, 0, user.rBuffer.Length);            
-            user.sock.BeginReceive(user.sBuffer, 0, user.sBuffer.Length,
+            user.sock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
                                     SocketFlags.None, ReceiveCallBack, user);
         }
         static void SendCallBack(IAsyncResult ar)
