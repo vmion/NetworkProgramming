@@ -46,13 +46,27 @@ namespace AsyncExample_Client
             sock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
                                     SocketFlags.None, ReceiveCallBack, user);
             while ((line = Console.ReadLine()) != null)
-            {
+            {                
                 byte[] sends = Encoding.Default.GetBytes(line);
-                Array.Copy(sends, user.sBuffer, sends.Length);
+                /*
+                string[] lines = new string[128];
+                if(lines[0] == "#")
+                {                    
+                    user.sock.Close();
+                }
+                Array.Clear(lines, 0, lines.Length);
+                */                
+                if (line.StartsWith("#"))
+                    break;                
+                /*
+                if (line.Equals("#"))
+                    break;
+                */
+                Array.Copy(sends, user.sBuffer, sends.Length);                
                 user.sock.BeginSend(user.sBuffer, 0, user.sBuffer.Length,
                                     SocketFlags.None, SendCallBack, sock);
             }
-            user.sock.Close();
+            sock.Close();
         }
         static void ReceiveCallBack(IAsyncResult ar)
         {
@@ -64,11 +78,8 @@ namespace AsyncExample_Client
                                     SocketFlags.None, ReceiveCallBack, user);
         }
         static void SendCallBack(IAsyncResult ar)
-        {
-            //User user = (User)ar.AsyncState;
-            Array.Clear(user.sBuffer, 0, user.sBuffer.Length);
-            //user.sock.BeginSend(user.rBuffer, 0, user.rBuffer.Length,
-                                    //SocketFlags.None, SendCallBack, user);
+        {            
+            Array.Clear(user.sBuffer, 0, user.sBuffer.Length);            
         }
     }
 }

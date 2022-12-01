@@ -12,13 +12,15 @@ namespace AsyncExample
     public class User
     {
         public Socket sock;
+        public int handle;
         public byte[] rBuffer;
         public byte[] sBuffer;        
         public User(Socket _sock)
         {
             sock = _sock;
+            handle = (int)_sock.Handle;
             sBuffer = new byte[128];
-            rBuffer = new byte[128];
+            rBuffer = new byte[128];            
         }
         public void Close()
         {
@@ -33,6 +35,7 @@ namespace AsyncExample
         static Socket listenSock;        
         static Thread t1;
         static List<User> userList;
+        static List<User> deleteList;
         static void Main(string[] args)
         {
             listenSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -46,14 +49,28 @@ namespace AsyncExample
             t1.Start();
 
         }
+        static void RemoveUser()
+        {
+            if(deleteList.Count > 0)
+            {
+                for(int i = 0; i < deleteList.Count; i++)
+                {
+                    userList.Remove(deleteList[i]);
+                    deleteList[i].Close();
+                }
+                deleteList.Clear();
+            }
+        }
         static void NewClient()
         {
             //사용자 접속
             while (true)
-            {
+            {                
                 listenSock.Listen(1000);                                                        
                 listenSock.BeginAccept(AcceptCallBack, null);                
                 Thread.Sleep(10);
+                if(deleteList != null)
+                    RemoveUser();
             }
         }
         static void AcceptCallBack(IAsyncResult ar)
@@ -66,24 +83,24 @@ namespace AsyncExample
                 userSock.Send(tmp);
                 user = new User(userSock);
                 userList.Add(user);
-                Console.WriteLine(user.sock.RemoteEndPoint + "유저가 접속하였습니다.");
+                Console.WriteLine(user.handle + "유저가 접속하였습니다.");
                 userSock.BeginReceive(user.rBuffer, 0, user.rBuffer.Length,
                     SocketFlags.None, ReceiveCallBack, user);
             }
             catch(Exception e)
-            {
-                if(user != null)
-                    userList.Remove(user);
-                userSock.Close();
+            { 
+                //if(user != null)                
+                deleteList.Add(user);                     
             }
         }
         static void ReceiveCallBack(IAsyncResult ar)
-        {
-            //userSock이 보낸 데이터를 다른 사용자에게 전송
+        {           
             User user = (User)ar.AsyncState;
             try
             {
-                //자신의 메시지를 다른사용자에게 보내기 위하여 rBuffer의 데이터를 sBuffer에 전송            
+                if (user.rBuffer[0] == 35) //#을 전송했을 경우
+                    throw new Exception(user.handle + "님이 접속종료했습니다.");
+                
                 for (int i = 0; i < userList.Count; i++)
                 {
                     Array.Copy(user.rBuffer, userList[i].sBuffer, user.rBuffer.Length);
@@ -94,9 +111,8 @@ namespace AsyncExample
             }
             catch(Exception e)
             {                
-                Console.WriteLine(user.sock.Handle + "유저가 접속종료하였습니다.");
-                userList.Remove(user);
-                user.sock.Close();                
+                Console.WriteLine(user.handle + "유저가 접속종료하였습니다.");
+                //deleteList.Add(user);                                                                                                
             }
         }
         static void SendCallBack(IAsyncResult ar)
@@ -110,8 +126,8 @@ namespace AsyncExample
             }
             catch(Exception e)
             {
-                userList.Remove(user);
-                user.sock.Close();
+                //if(user != null)
+                //deleteList.Add(user);                
             }
         }
     }
