@@ -1,0 +1,5 @@
+sceneSetups:
+- path: Z:/github/P2PNetwork/p2pClient/Assets/Scenes/P2PClient.unity
+  isLoaded: 1
+  isActive: 1
+  isSubScene: 0
