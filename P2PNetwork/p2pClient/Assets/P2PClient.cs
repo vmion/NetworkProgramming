@@ -7,7 +7,8 @@ using System.Text;
 using UnityEngine;
 
 ///////////////////////////////
-public enum ePACKET { NONE, PEERINFO = 100 }
+public enum ePACKET { NONE, PEERINFO = 100, CHARINFO = 101 }
+public enum eCHARTYPE { NONE = 0, TROLL, GOLEM }
 //피어 정보
 public struct PeerInfo
 {
@@ -20,10 +21,12 @@ public struct PeerInfo
     public string cPlayerName;
 }
 //캐릭터 변경
-public struct CharChange
+public struct CharInfo
 {
-    public int uid;
+    public short header;
+    public int Uid;
     public byte charType;
+    public byte nameLength;
     public string name;
 }
 public class P2PClient : MonoBehaviour
@@ -35,6 +38,9 @@ public class P2PClient : MonoBehaviour
     byte[] rBuffer;
     Queue<byte[]> packetQue;
     PeerInfo peerInfo;
+    CharInfo clientChar;
+    GameObject sGameObject;
+    GameObject cGameObject;
     void Awake()
     {        
         sBuffer = new byte[128];
@@ -49,6 +55,7 @@ public class P2PClient : MonoBehaviour
         Array.Copy(rBuffer, tmp, rBuffer.Length);
         Array.Clear(rBuffer, 0, rBuffer.Length);
         packetQue.Enqueue(tmp);
+        clientPeer.BeginReceive(rBuffer, 0, rBuffer.Length, SocketFlags.None, ReceiveCallBack, clientPeer);
     }
     void Start()
     {       
@@ -56,22 +63,52 @@ public class P2PClient : MonoBehaviour
     }
     void ReceiveCallBack(IAsyncResult ar)
     {
-        
+        clientPeer = (Socket)ar.AsyncState;
+        byte[] tmp = new byte[128];
+        Array.Copy(rBuffer, 0, tmp, 0, rBuffer.Length);
+        Array.Clear(rBuffer, 0, rBuffer.Length);
+        packetQue.Enqueue(tmp);
     }
     void SendCallBack(IAsyncResult ar)
     {
-        
+        clientPeer = (Socket)ar.AsyncState;
+        byte[] tmp = new byte[128];
+        Array.Copy(sBuffer, 0, tmp, 0, sBuffer.Length);
+        Array.Clear(sBuffer, 0, sBuffer.Length);
+        packetQue.Enqueue(tmp);
     }
     public void CreateGameObject()
     {
-        GameObject sCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        sCube.transform.position = new Vector3(0, 0, 0);
-        sCube.name = peerInfo.sPlayerName;
+        sGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        sGameObject.transform.position = new Vector3(0, 0, 0);
+        sGameObject.name = peerInfo.sPlayerName;
 
-        GameObject cCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cCube.transform.position = new Vector3(5, 5, 5);
-        cCube.name = peerInfo.cPlayerName;
+        cGameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cGameObject.transform.position = new Vector3(5, 5, 5);
+        cGameObject.name = peerInfo.cPlayerName;
+    }
+    public void ChangeClientCharacter()
+    {
+        clientChar.header = (short)ePACKET.CHARINFO;
+        clientChar.Uid = peerInfo.clientUid;
+        clientChar.charType = (byte)eCHARTYPE.GOLEM;
+        clientChar.name = "골렘";
+        //패킷 생성
+        byte[] header = BitConverter.GetBytes(clientChar.header);
+        byte[] clientUid = BitConverter.GetBytes(clientChar.Uid);
+        byte[] cCharType = new byte[1];
+        cCharType[0] = clientChar.charType;
+        byte[] cCharNameLength = new byte[1];
+        cCharNameLength[0] = (byte)clientChar.name.Length;
+        byte[] cCharName = Encoding.Default.GetBytes(clientChar.name);
 
+        Array.Copy(header, 0, sBuffer, 0, header.Length);
+        Array.Copy(clientUid, 0, sBuffer, 2, clientUid.Length);
+        Array.Copy(cCharType, 0, sBuffer, 6, 1);
+        Array.Copy(cCharNameLength, 0, sBuffer, 7, 1);
+        Array.Copy(cCharName, 0, sBuffer, 8, cCharNameLength[0]);
+
+        clientPeer.BeginSend(sBuffer, 0, sBuffer.Length, SocketFlags.None, SendCallBack, clientPeer);
     }
     void Update()
     {        
@@ -90,7 +127,7 @@ public class P2PClient : MonoBehaviour
                     byte[] sPlayerNameLength = new byte[1];
                     byte[] sPlayerName;
                     byte[] cPlayerNameLength = new byte[1];
-                    byte[] cPlayerName; ;
+                    byte[] cPlayerName;
                     Array.Copy(queueData, 2, serverUid, 0, serverUid.Length);
                     Array.Copy(queueData, 6, clientUid, 0, clientUid.Length);
                     Array.Copy(queueData, 10, sPlayerNameLength, 0, sPlayerNameLength.Length);
@@ -110,8 +147,48 @@ public class P2PClient : MonoBehaviour
                     Debug.Log("sPlayerName = " + peerInfo.sPlayerName);
                     Debug.Log("cPlayerName = " + peerInfo.cPlayerName);
                     CreateGameObject();
+                    break;
                 }
-                break;                
+                case (int)ePACKET.CHARINFO:
+                    {
+                        Debug.Log("charInfo");
+                        Debug.Log("header = " + header);
+                        byte[] Uid = new byte[4];
+                        byte[] CharType = new byte[1];
+                        byte[] CharNameLength = new byte[1];
+                        byte[] CharName;
+                        Array.Copy(queueData, 2, Uid, 0, Uid.Length);
+                        Array.Copy(queueData, 6, CharType, 0, CharType.Length);
+                        Array.Copy(queueData, 7, CharNameLength, 0, CharNameLength.Length);
+                        CharName = new byte[CharNameLength[0]];
+                        Array.Copy(queueData, 8, CharName, 0, CharNameLength[0]);
+                        int id = BitConverter.ToInt32(Uid, 0);
+                        string rcName = string.Empty;
+                        switch ((int)CharType[0])
+                        {
+                            case (int)eCHARTYPE.TROLL:
+                                rcName = "TrollGiant";
+                                break;
+                            case (int)eCHARTYPE.GOLEM:
+                                rcName = "Golem";
+                                break;
+                        }
+                        GameObject rcGameObject = Resources.Load<GameObject>(rcName);
+                        if (id == peerInfo.severUid)
+                        {
+                            Debug.Log("Uid = " + peerInfo.clientUid);
+                            sGameObject = Instantiate<GameObject>(rcGameObject);
+                            sGameObject.name = Encoding.Default.GetString(CharName);
+                        }
+                        else
+                        {
+                            Debug.Log("Uid = " + clientChar.Uid);
+                            cGameObject = Instantiate<GameObject>(rcGameObject);
+                            cGameObject.name = Encoding.Default.GetString(CharName);
+                        }
+                        break;
+                    }
+
             }
         }
     }
