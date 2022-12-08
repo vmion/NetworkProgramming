@@ -65,6 +65,7 @@ public class P2PServer : MonoBehaviour
         IPEndPoint ip = new IPEndPoint(IPAddress.Parse(strIp), port);
         listenSock.Bind(ip);        
         StartCoroutine(Listen());
+        listenSock.BeginReceive(srBuffer, 0, srBuffer.Length, SocketFlags.None, ReceiveCallBack, listenSock);
     }
     IEnumerator Listen()
     {
@@ -106,7 +107,7 @@ public class P2PServer : MonoBehaviour
     }
     void ReceiveCallBack(IAsyncResult ar)
     {
-        clientPeer = (Socket)ar.AsyncState;
+        listenSock = (Socket)ar.AsyncState;
         byte[] tmp = new byte[128];
         Array.Copy(srBuffer, 0, tmp, 0, srBuffer.Length);
         Array.Clear(srBuffer, 0, srBuffer.Length);
@@ -188,7 +189,7 @@ public class P2PServer : MonoBehaviour
         Array.Copy(cCharType, 0, ssBuffer, 6, 1);
         Array.Copy(cCharNameLength, 0, ssBuffer, 7, 1);
         Array.Copy(cCharName, 0, ssBuffer, 8, cCharNameLength[0]);
-
+        
         clientPeer.BeginSend(ssBuffer, 0, ssBuffer.Length, SocketFlags.None, SendCallBack, clientPeer);
     }
     void Update()
@@ -232,7 +233,7 @@ public class P2PServer : MonoBehaviour
                 }
                 case (int)ePACKET.CHARINFO:
                     {
-                        Debug.Log("charInfo");
+                        Debug.Log("패킷타입이 charInfo");
                         Debug.Log("header = " + header);
                         byte[] Uid = new byte[4];
                         byte[] CharType = new byte[1];
@@ -258,13 +259,17 @@ public class P2PServer : MonoBehaviour
                         if (id == peerInfo.severUid)
                         {
                             Debug.Log("Uid = " + peerInfo.clientUid);
-                            sGameObject = Instantiate<GameObject>(rcGameObject);                            
+                            DestroyImmediate(sGameObject);
+                            sGameObject = Instantiate<GameObject>(rcGameObject);
+                            sGameObject.transform.position = new Vector3(0, 0, 0);
                             sGameObject.name = Encoding.Default.GetString(CharName);
                         }
                         else
                         {
                             Debug.Log("Uid = " + clientChar.Uid);
+                            DestroyImmediate(cGameObject);
                             cGameObject = Instantiate<GameObject>(rcGameObject);
+                            cGameObject.transform.position = new Vector3(5, 5, 5);
                             cGameObject.name = Encoding.Default.GetString(CharName);
                         }                        
                         break;
